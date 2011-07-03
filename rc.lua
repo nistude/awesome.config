@@ -77,7 +77,7 @@ mylauncher = awful.widget.launcher({ image = image(beautiful.awesome_icon),
 -- }}}
 
 -- {{{ Wibox
---- battery widget
+-- battery widget
 batbar = awful.widget.progressbar()
 batbar:set_vertical(true):set_ticks(true)
 batbar:set_height(18):set_width(10):set_ticks_size(2)
