@@ -395,6 +395,8 @@ client.add_signal("focus", function(c) c.border_color = beautiful.border_focus e
 client.add_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
 -- }}}
 
--- Start some additional applets
+-- Start some additional GNOME applets
+os.execute("gnome-settings-daemon &")
 os.execute("nm-applet &")
 os.execute("gnome-power-manager &")
+os.execute("gnome-volume-control-applet &")
