@@ -415,4 +415,3 @@ client.add_signal("unfocus", function(c) c.border_color = beautiful.border_norma
 os.execute("gnome-settings-daemon &")
 os.execute("nm-applet &")
 os.execute("gnome-power-manager &")
-os.execute("gnome-volume-control-applet &")
