@@ -415,3 +415,4 @@ client.add_signal("unfocus", function(c) c.border_color = beautiful.border_norma
 
 -- Start some additional applets
 os.execute("nm-applet &")
+os.execute("gnome-power-manager &")
