@@ -90,9 +90,7 @@ vicious.register(cpugraph, vicious.widgets.cpu, "$1", 1)
 diskgraph = awful.widget.graph()
 diskgraph:set_width(40):set_height(18)
 diskgraph:set_background_color(beautiful.fg_off_widget)
-diskgraph:set_gradient_angle(0):set_gradient_colors({
-    beautiful.fg_end_widget, beautiful.fg_center_widget, beautiful.fg_widget
-})
+diskgraph:set_gradient_angle(0):set_color(beautiful.fg_end_widget)
 vicious.register(diskgraph, vicious.widgets.dio, "${total_kb}", 1, "sda")
 
 -- memory usage widget
@@ -204,8 +202,8 @@ for s = 1, screen.count() do
         mytextclock,
  	separator, weatherwidget,
  	separator, upicon, netwidget_up, downicon, netwidget_down,
- 	separator, cpugraph.widget,
  	separator, membar.widget,
+ 	separator, cpugraph.widget,
  	separator, diskgraph.widget,
 	separator,
         s == 1 and mysystray or nil,
