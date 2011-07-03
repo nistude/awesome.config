@@ -77,21 +77,6 @@ mylauncher = awful.widget.launcher({ image = image(beautiful.awesome_icon),
 -- }}}
 
 -- {{{ Wibox
--- battery widget
-batbar = awful.widget.progressbar()
-batbar:set_vertical(true):set_ticks(true)
-batbar:set_height(18):set_width(10):set_ticks_size(2)
-batbar:set_background_color(beautiful.fg_off_widget)
-batbar:set_gradient_colors({
-    beautiful.fg_end_widget,
-    beautiful.fg_center_widget,
-    beautiful.fg_widget
-})
-vicious.register(batbar, vicious.widgets.bat, "$2", 60, "BAT0")
-
-batwidget = widget({ type = "textbox" })
-vicious.register(batwidget, vicious.widgets.bat, "$1/$3 ", 60, "BAT0")
-
 -- cpu widget
 cpugraph = awful.widget.graph()
 cpugraph:set_width(40):set_height(18)
@@ -218,7 +203,6 @@ for s = 1, screen.count() do
         mylayoutbox[s],
         mytextclock,
  	separator, weatherwidget,
- 	separator, batbar.widget, batwidget,
  	separator, upicon, netwidget_up, downicon, netwidget_down,
  	separator, cpugraph.widget,
  	separator, membar.widget,
