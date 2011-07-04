@@ -123,12 +123,12 @@ vicious.register(membar, vicious.widgets.mem, "$1", 10)
 
 -- network usage widget
 netwidget_down = widget({ type = "textbox" })
-vicious.register(netwidget_down, vicious.widgets.net, '${wlan0 down_kb}', 3)
+vicious.register(netwidget_down, vicious.widgets.net, '${eth0 down_kb}/${wlan0 down_kb}')
 downicon = widget({ type = "imagebox" })
 downicon.image = image(beautiful.widget_net_down)
 
 netwidget_up = widget({ type = "textbox" })
-vicious.register(netwidget_up, vicious.widgets.net, '${wlan0 up_kb}', 3)
+vicious.register(netwidget_up, vicious.widgets.net, '${eth0 up_kb}/${wlan0 up_kb}')
 upicon = widget({ type = "imagebox" })
 upicon.image = image(beautiful.widget_net_up)
 
@@ -371,15 +371,11 @@ awful.rules.rules = {
                      focus = true,
                      keys = clientkeys,
                      buttons = clientbuttons } },
-    { rule = { class = "MPlayer" },
-      properties = { floating = true } },
-    { rule = { class = "Pidgin" },
-      properties = { floating = true } },
-    { rule = { class = "gimp" },
-      properties = { floating = true } },
+    { rule = { class = "MPlayer" }, properties = { floating = true } },
+    { rule = { class = "Pidgin" }, properties = { floating = true } },
+    { rule = { class = "Pidgin", name = "Buddy List" }, properties = { floating = false } },
     -- Set Opera to always map on tags number 2 of screen 1.
-    { rule = { class = "Opera" },
-      properties = { tag = tags[1][2] } },
+    { rule = { class = "Opera" }, properties = { tag = tags[1][2] } },
 }
 -- }}}
 
