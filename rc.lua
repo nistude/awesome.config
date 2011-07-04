@@ -373,7 +373,7 @@ awful.rules.rules = {
                      buttons = clientbuttons } },
     { rule = { class = "MPlayer" },
       properties = { floating = true } },
-    { rule = { class = "pinentry" },
+    { rule = { class = "Pidgin" },
       properties = { floating = true } },
     { rule = { class = "gimp" },
       properties = { floating = true } },
