@@ -298,7 +298,7 @@ globalkeys = awful.util.table.join(
 	    -- Rule sets tag
 	    awful.util.spawn("opera")
 	end),
-    awful.key({ modkey }, "#156", function () os.execute("gksudo -- shutdown -h now") end)
+    awful.key({}, "#156", function () os.execute("gksudo -- shutdown -h now") end)
 )
 
 clientkeys = awful.util.table.join(
