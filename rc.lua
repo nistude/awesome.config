@@ -46,10 +46,15 @@ layouts =
 
 -- {{{ Tags
 -- Define a tag table which hold all screen tags.
-tags = { }
+tags = {
+    settings = {
+        { layout = { layouts[6], layouts[1], layouts[6], layouts[6] } },
+        { layout = { layouts[6], layouts[6], layouts[6], layouts[6] } }
+    }
+}
 for s = 1, screen.count() do
     -- Each screen has its own tag table.
-    tags[s] = awful.tag({ 1, 2, 3, 4, 5, 6, 7, 8, 9 }, s, layouts[6])
+    tags[s] = awful.tag({ 1, 2, 3, 4 }, s, tags.settings[s].layout)
 end
 
 -- }}}
@@ -373,7 +378,7 @@ awful.rules.rules = {
     { rule = { class = "Pidgin" }, properties = { floating = true } },
     { rule = { class = "Pidgin", name = "Buddy List" }, properties = { floating = false } },
     -- Set Opera to always map on tags number 2 of screen 1.
-    { rule = { class = "Opera" }, properties = { tags[1][2] } }
+    { rule = { class = "Opera" }, properties = { tag = tags[1][2] } }
 }
 -- }}}
 
