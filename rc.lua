@@ -292,8 +292,8 @@ globalkeys = awful.util.table.join(
             -- Setup terminal on current tag
 	    awful.util.spawn("/usr/bin/gnome-terminal -t mutt@work -x mutt")
 	    awful.util.spawn("/usr/bin/gnome-terminal -t mutt@home -x ssh -t nst.homeunix.net mutt")
-	    awful.util.spawn(terminal)
             awful.util.spawn("/usr/bin/gnome-terminal -t irssi -x ssh -t devon.fsck.us screen -rd")
+	    awful.util.spawn("python /home/sturm/data/src/snakefire/snakefire.py")
 
 	    -- Rule sets tag
 	    awful.util.spawn("opera")
