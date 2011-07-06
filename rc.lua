@@ -51,6 +51,7 @@ for s = 1, screen.count() do
     -- Each screen has its own tag table.
     tags[s] = awful.tag({ 1, 2, 3, 4, 5, 6, 7, 8, 9 }, s, layouts[6])
 end
+
 -- }}}
 
 -- {{{ Menu
@@ -273,12 +274,25 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey },            "/",     function () mypromptbox[mouse.screen]:run() end),
 
     awful.key({ modkey }, "x",
-              function ()
-                  awful.prompt.run({ prompt = "Run Lua code: " },
-                  mypromptbox[mouse.screen].widget,
-                  awful.util.eval, nil,
-                  awful.util.getdir("cache") .. "/history_eval")
-              end)
+        function ()
+	    awful.prompt.run({ prompt = "Run Lua code: " },
+            mypromptbox[mouse.screen].widget,
+            awful.util.eval, nil,
+            awful.util.getdir("cache") .. "/history_eval")
+        end),
+
+    -- Custom startup
+    awful.key({ modkey }, "F1",
+    	function ()
+            -- Setup terminal on current tag
+	    awful.util.spawn("/usr/bin/gnome-terminal -t mutt@work -x mutt")
+	    awful.util.spawn("/usr/bin/gnome-terminal -t mutt@home -x ssh -t nst.homeunix.net mutt")
+	    awful.util.spawn(terminal)
+            awful.util.spawn("/usr/bin/gnome-terminal -t irssi -x ssh -t devon.fsck.us screen -rd")
+
+	    -- Rule sets tag
+	    awful.util.spawn("opera")
+	end)
 )
 
 clientkeys = awful.util.table.join(
@@ -359,7 +373,7 @@ awful.rules.rules = {
     { rule = { class = "Pidgin" }, properties = { floating = true } },
     { rule = { class = "Pidgin", name = "Buddy List" }, properties = { floating = false } },
     -- Set Opera to always map on tags number 2 of screen 1.
-    { rule = { class = "Opera" }, properties = { floating = true } }
+    { rule = { class = "Opera" }, properties = { tags[1][2] } }
 }
 -- }}}
 
