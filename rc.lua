@@ -286,7 +286,7 @@ globalkeys = awful.util.table.join(
             awful.util.getdir("cache") .. "/history_eval")
         end),
 
-    -- Custom startup
+    -- Custom
     awful.key({ modkey }, "F1",
     	function ()
             -- Setup terminal on current tag
@@ -297,7 +297,8 @@ globalkeys = awful.util.table.join(
 
 	    -- Rule sets tag
 	    awful.util.spawn("opera")
-	end)
+	end),
+    awful.key({ modkey }, "#156", function () os.execute("gksudo -- shutdown -h now") end)
 )
 
 clientkeys = awful.util.table.join(
