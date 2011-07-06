@@ -10,6 +10,9 @@ require("naughty")
 -- Widget library
 require("vicious")
 
+-- Scratchpad
+require("scratch")
+
 -- Load Debian menu entries
 require("debian.menu")
 
@@ -287,7 +290,7 @@ globalkeys = awful.util.table.join(
         end),
 
     -- Custom
-    awful.key({ modkey }, "F1",
+    awful.key({ modkey }, "F12",
     	function ()
             -- Setup terminal on current tag
 	    awful.util.spawn("/usr/bin/gnome-terminal -t mutt@work -x mutt")
@@ -298,6 +301,8 @@ globalkeys = awful.util.table.join(
 	    -- Rule sets tag
 	    awful.util.spawn("opera")
 	end),
+    awful.key({ modkey }, "b", function () scratch.drop(terminal .. " -e vim /home/sturm/braindump", nil, nil, 0.5) end),
+    awful.key({ modkey }, "s", function () scratch.pad.toggle() end),
     awful.key({}, "#156", function () os.execute("gksudo -- shutdown -h now") end)
 )
 
