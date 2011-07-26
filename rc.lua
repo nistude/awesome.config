@@ -379,6 +379,7 @@ awful.rules.rules = {
                      focus = true,
                      keys = clientkeys,
                      buttons = clientbuttons } },
+    { rule = { class = "Evince" }, properties = { floating = true } },
     { rule = { class = "MPlayer" }, properties = { floating = true } },
     { rule = { class = "Mysql-workbench-bin" }, properties = { floating = true } },
     { rule = { class = "Pidgin" }, properties = { floating = true } },
@@ -424,3 +425,5 @@ os.execute("gnome-settings-daemon &")
 os.execute("gnome-keyring-daemon")
 os.execute("nm-applet &")
 os.execute("gnome-power-manager &")
+os.execute("update-notifier &")
+os.execute("empathy &")
