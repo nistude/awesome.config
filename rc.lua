@@ -384,8 +384,6 @@ awful.rules.rules = {
     { rule = { class = "Mysql-workbench-bin" }, properties = { floating = true } },
     -- Set Opera to always map on tags number 2 of screen 1.
     { rule = { class = "Opera" }, properties = { tag = tags[1][2] } },
-    { rule = { class = "Pidgin" }, properties = { floating = true } },
-    { rule = { class = "Pidgin", name = "Buddy List" }, properties = { floating = false } },
     { rule = { class = "Unison" }, properties = { floating = true } }
 }
 -- }}}
