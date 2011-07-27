@@ -379,6 +379,7 @@ awful.rules.rules = {
                      focus = true,
                      keys = clientkeys,
                      buttons = clientbuttons } },
+    { rule = { class = "Evince" }, properties = { floating = true } },
     { rule = { class = "MPlayer" }, properties = { floating = true } },
     { rule = { class = "Mysql-workbench-bin" }, properties = { floating = true } },
     -- Set Opera to always map on tags number 2 of screen 1.
@@ -427,3 +428,4 @@ os.execute("nm-applet &")
 os.execute("gnome-power-manager &")
 os.execute("gnome-volume-control-applet &")
 os.execute("update-notifier &")
+os.execute("empathy &")
