@@ -298,6 +298,8 @@ globalkeys = awful.util.table.join(
 	    awful.util.spawn(terminal)
             awful.util.spawn("/usr/bin/gnome-terminal -t irssi -x ssh -t devon.fsck.us screen -rd")
 
+	    awful.util.spawn("empathy")
+
 	    -- Rule sets tag
 	    awful.util.spawn("opera")
 	end),
@@ -427,4 +429,3 @@ os.execute("gnome-keyring-daemon")
 os.execute("nm-applet &")
 os.execute("gnome-power-manager &")
 os.execute("update-notifier &")
-os.execute("empathy &")
