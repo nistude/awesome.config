@@ -304,6 +304,7 @@ globalkeys = awful.util.table.join(
 	    awful.util.spawn("opera")
 	end),
     awful.key({ modkey }, "b", function () scratch.drop(terminal .. " -e vim /home/sturm/braindump", nil, nil, 0.5) end),
+    awful.key({ modkey }, "l", function () scratch.drop(terminal .. " -e vim /home/sturm/logbuch", nil, nil, 0.5) end),
     awful.key({ modkey }, "s", function () scratch.pad.toggle() end),
     awful.key({}, "#156", function () os.execute("gksudo -- shutdown -h now") end)
 )
@@ -386,7 +387,8 @@ awful.rules.rules = {
     { rule = { class = "Mysql-workbench-bin" }, properties = { floating = true } },
     -- Set Opera to always map on tags number 2 of screen 1.
     { rule = { class = "Opera" }, properties = { tag = tags[1][2] } },
-    { rule = { class = "Unison" }, properties = { floating = true } }
+    { rule = { class = "Unison" }, properties = { floating = true } },
+    { rule = { class = "VirtualBox" }, properties = { floating = true } }
 }
 -- }}}
 
