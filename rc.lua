@@ -424,6 +424,7 @@ client.add_signal("unfocus", function(c) c.border_color = beautiful.border_norma
 -- }}}
 
 -- Start some additional GNOME applets
+os.execute("/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1 &")
 os.execute("gnome-settings-daemon &")
 os.execute("gnome-keyring-daemon")
 os.execute("nm-applet &")
