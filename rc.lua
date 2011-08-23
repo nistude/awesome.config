@@ -374,7 +374,7 @@ globalkeys = awful.util.table.join(
 	    awful.util.spawn(terminal)
             awful.util.spawn("/usr/bin/gnome-terminal -t irssi -x ssh -t devon.fsck.us screen -rd")
 
-	    awful.util.spawn("empathy")
+	    awful.util.spawn("empathy --start-hidden")
 
 	    -- Rule sets tag
 	    awful.util.spawn("opera")
