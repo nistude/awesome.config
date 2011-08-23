@@ -164,7 +164,8 @@ end
 function pomodoro:notify(title, text, duration, working)
   naughty.notify {
     bg = "#ff0000",
-    fg = "#aaaaaa",
+    fg = "#ffffff",
+    font = "Verdana 20",
     title = title,
     text  = text,
     timeout = 10
