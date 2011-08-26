@@ -166,6 +166,7 @@ function pomodoro:notify(title, text, duration, working)
     bg = "#ff0000",
     fg = "#ffffff",
     font = "Verdana 20",
+    screen = mouse.screen,
     title = title,
     text  = text,
     timeout = 10
@@ -326,7 +327,6 @@ root.buttons(awful.util.table.join(
 globalkeys = awful.util.table.join(
     awful.key({ modkey,           }, "Left",   awful.tag.viewprev       ),
     awful.key({ modkey,           }, "Right",  awful.tag.viewnext       ),
-    awful.key({ modkey,           }, "Escape", awful.tag.history.restore),
 
     awful.key({ modkey,           }, "Tab",
         function ()
@@ -334,37 +334,21 @@ globalkeys = awful.util.table.join(
             if client.focus then client.focus:raise() end
         end),
     awful.key({ modkey, "Shift"   }, "Tab", function () awful.screen.focus_relative( 1) end),
-    awful.key({ modkey,           }, "w", function () mymainmenu:show({keygrabber=true}) end),
 
     -- Layout manipulation
-    awful.key({ modkey, "Shift"   }, "j", function () awful.client.swap.byidx(  1)    end),
-    awful.key({ modkey, "Shift"   }, "k", function () awful.client.swap.byidx( -1)    end),
-    awful.key({ modkey,           }, "u", awful.client.urgent.jumpto),
+    awful.key({ modkey,           }, "j", function () awful.client.swap.byidx(  1)    end),
+    awful.key({ modkey,           }, "k", function () awful.client.swap.byidx( -1)    end),
 
     -- Standard program
     awful.key({ modkey,           }, "Return", function () awful.util.spawn(terminal) end),
     awful.key({ modkey, "Control" }, "r", awesome.restart),
     awful.key({ modkey, "Control" }, "q", awesome.quit),
 
-    awful.key({ modkey,           }, "l",     function () awful.tag.incmwfact( 0.05)    end),
-    awful.key({ modkey,           }, "h",     function () awful.tag.incmwfact(-0.05)    end),
-    awful.key({ modkey, "Shift"   }, "h",     function () awful.tag.incnmaster( 1)      end),
-    awful.key({ modkey, "Shift"   }, "l",     function () awful.tag.incnmaster(-1)      end),
-    awful.key({ modkey, "Control" }, "h",     function () awful.tag.incncol( 1)         end),
-    awful.key({ modkey, "Control" }, "l",     function () awful.tag.incncol(-1)         end),
     awful.key({ modkey,           }, "space", function () awful.layout.inc(layouts,  1) end),
     awful.key({ modkey, "Shift"   }, "space", function () awful.layout.inc(layouts, -1) end),
 
     -- Prompt
     awful.key({ modkey },            "/",     function () mypromptbox[mouse.screen]:run() end),
-
-    awful.key({ modkey }, "x",
-        function ()
-	    awful.prompt.run({ prompt = "Run Lua code: " },
-            mypromptbox[mouse.screen].widget,
-            awful.util.eval, nil,
-            awful.util.getdir("cache") .. "/history_eval")
-        end),
 
     -- Custom
     awful.key({ modkey }, "F12",
@@ -382,17 +366,14 @@ globalkeys = awful.util.table.join(
 	end),
     awful.key({ modkey }, "b", function () scratch.drop(terminal .. " -e vim /home/sturm/braindump", nil, nil, 0.5) end),
     awful.key({ modkey }, "l", function () scratch.drop(terminal .. " -e vim /home/sturm/logbuch", nil, nil, 0.5) end),
-    awful.key({ modkey }, "s", function () scratch.pad.toggle() end),
     awful.key({}, "#156", function () os.execute("gksudo -- shutdown -h now") end)
 )
 
 clientkeys = awful.util.table.join(
     awful.key({ modkey,           }, "f",      function (c) c.fullscreen = not c.fullscreen  end),
-    awful.key({ modkey, "Shift"   }, "c",      function (c) c:kill()                         end),
+    awful.key({ modkey,           }, "c",      function (c) c:kill()                         end),
     awful.key({ modkey, "Control" }, "space",  awful.client.floating.toggle                     ),
-    awful.key({ modkey, "Control" }, "Return", function (c) c:swap(awful.client.getmaster()) end),
-    awful.key({ modkey,           }, "o",      awful.client.movetoscreen                        ),
-    awful.key({ modkey, "Shift"   }, "r",      function (c) c:redraw()                       end),
+    awful.key({ modkey,           }, "r",      function (c) c:redraw()                       end),
     awful.key({ modkey,           }, "t",      function (c) c.ontop = not c.ontop            end),
     awful.key({ modkey,           }, "n",      function (c) c.minimized = not c.minimized    end),
     awful.key({ modkey,           }, "m",
@@ -402,43 +383,29 @@ clientkeys = awful.util.table.join(
         end)
 )
 
--- Compute the maximum number of digit we need, limited to 9
-keynumber = 0
-for s = 1, screen.count() do
-   keynumber = math.min(9, math.max(#tags[s], keynumber));
-end
-
--- Bind all key numbers to tags.
--- Be careful: we use keycodes to make it works on any keyboard layout.
--- This should map on the top row of your keyboard, usually 1 to 9.
-for i = 1, keynumber do
+-- bind key numbers to tags
+-- we use keycodes to make it work on any keyboard layout
+-- tags 1..4 are located on screen 1
+-- tags 5..8 are located on screen 2
+for i = 1, 4 do
     globalkeys = awful.util.table.join(globalkeys,
         awful.key({ modkey }, "#" .. i + 9,
-                  function ()
-                        local screen = mouse.screen
-                        if tags[screen][i] then
-                            awful.tag.viewonly(tags[screen][i])
-                        end
-                  end),
-        awful.key({ modkey, "Control" }, "#" .. i + 9,
-                  function ()
-                      local screen = mouse.screen
-                      if tags[screen][i] then
-                          awful.tag.viewtoggle(tags[screen][i])
-                      end
-                  end),
-        awful.key({ modkey, "Shift" }, "#" .. i + 9,
-                  function ()
-                      if client.focus and tags[client.focus.screen][i] then
-                          awful.client.movetotag(tags[client.focus.screen][i])
-                      end
-                  end),
-        awful.key({ modkey, "Control", "Shift" }, "#" .. i + 9,
-                  function ()
-                      if client.focus and tags[client.focus.screen][i] then
-                          awful.client.toggletag(tags[client.focus.screen][i])
-                      end
-                  end))
+	          function ()
+	              local screen = 1
+		      if tags[screen][i] then
+		          awful.tag.viewonly(tags[screen][i])
+	    	      end
+		  end))
+end
+for i = 5, 8 do
+    globalkeys = awful.util.table.join(globalkeys,
+        awful.key({ modkey }, "#" .. i + 9,
+	          function ()
+	              local screen = 2
+		      if tags[screen][i] then
+		          awful.tag.viewonly(tags[screen][i])
+	    	      end
+		  end))
 end
 
 clientbuttons = awful.util.table.join(
@@ -501,10 +468,10 @@ client.add_signal("unfocus", function(c) c.border_color = beautiful.border_norma
 -- }}}
 
 -- Start some additional GNOME applets
-os.execute("/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1 &")
 os.execute("gnome-settings-daemon &")
 os.execute("gnome-keyring-daemon")
 os.execute("nm-applet &")
 os.execute("gnome-power-manager &")
 os.execute("gnome-volume-control-applet &")
 os.execute("update-notifier &")
+os.execute("/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1 &")
