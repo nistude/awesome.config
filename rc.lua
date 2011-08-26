@@ -152,6 +152,21 @@ pomodoro.left = pomodoro.work_duration
 pomodoro.widget = widget({ type = "textbox" })
 pomodoro.timer = timer { timeout = 1 }
 
+function pomodoro:start()
+	pomodoro.last_time = os.time()
+	pomodoro.timer:start()
+end
+
+function pomodoro:stop()
+	pomodoro.timer:stop()
+end
+
+function pomodoro:reset()
+	pomodoro.timer:stop()
+	pomodoro.left = pomodoro.work_duration
+	pomodoro:settime(pomodoro.work_duration)
+end
+
 function pomodoro:settime(t)
   if t >= 3600 then -- more than one hour!
     t = os.date("%X", t-3600)
@@ -181,18 +196,9 @@ pomodoro:settime(pomodoro.work_duration)
 
 pomodoro.widget:buttons(
   awful.util.table.join(
-    awful.button({ }, 1, function()
-      pomodoro.last_time = os.time()
-      pomodoro.timer:start()
-    end),
-    awful.button({ }, 2, function()
-      pomodoro.timer:stop()
-    end),
-    awful.button({ }, 3, function()
-      pomodoro.timer:stop()
-      pomodoro.left = pomodoro.work_duration
-      pomodoro:settime(pomodoro.work_duration)
-    end)
+    awful.button({ }, 1, function() pomodoro:start() end),
+    awful.button({ }, 2, function() pomodoro:stop() end),
+    awful.button({ }, 3, function() pomodoro:reset() end)
 ))
 
 pomodoro.timer:add_signal("timeout", function()
@@ -351,6 +357,10 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey },            "/",     function () mypromptbox[mouse.screen]:run() end),
 
     -- Custom
+    awful.key({ modkey }, "F9", function () pomodoro:start() end),
+    awful.key({ modkey }, "F10", function () pomodoro:stop() end),
+    awful.key({ modkey }, "F11", function () pomodoro:reset() end),
+
     awful.key({ modkey }, "F12",
     	function ()
             -- Setup terminal on current tag
