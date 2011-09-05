@@ -407,9 +407,9 @@ for i = 1, 4 do
 	    	      end
 		  end))
 end
-for i = 5, 8 do
+for i = 1, 4 do
     globalkeys = awful.util.table.join(globalkeys,
-        awful.key({ modkey }, "#" .. i + 9,
+        awful.key({ modkey }, "#" .. i + 4 + 9,
 	          function ()
 	              local screen = 2
 		      if tags[screen][i] then
