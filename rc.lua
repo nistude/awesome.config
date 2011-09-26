@@ -141,7 +141,7 @@ upicon.image = image(beautiful.widget_net_up)
 pomodoro = {}
 -- tweak these values in seconds to your liking
 pomodoro.pause_duration = 300
-pomodoro.work_duration = 1200
+pomodoro.work_duration = 1500
 
 pomodoro.pause_title = "Pause finished."
 pomodoro.pause_text = "Get back to work!"
