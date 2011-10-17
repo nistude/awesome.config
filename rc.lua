@@ -82,22 +82,6 @@ mylauncher = awful.widget.launcher({ image = image(beautiful.awesome_icon),
 -- }}}
 
 -- {{{ Wibox
--- battery widget
-has_battery = awful.util.file_readable("/sys/class/power_supply/BAT0")
-batbar = awful.widget.progressbar()
-batbar:set_vertical(true):set_ticks(true)
-batbar:set_height(18):set_width(10):set_ticks_size(2)
-batbar:set_background_color(beautiful.fg_off_widget)
-batbar:set_gradient_colors({
-    beautiful.fg_end_widget,
-    beautiful.fg_center_widget,
-    beautiful.fg_widget
-})
-vicious.register(batbar, vicious.widgets.bat, "$2", 60, "BAT0")
-
-batwidget = widget({ type = "textbox" })
-vicious.register(batwidget, vicious.widgets.bat, "$1/$3 ", 60, "BAT0")
-
 -- cpu widget
 cpugraph = awful.widget.graph()
 cpugraph:set_width(40):set_height(18)
@@ -220,6 +204,18 @@ pomodoro.timer:add_signal("timeout", function()
   end
 end)
 
+-- volume widget
+volbar = awful.widget.progressbar()
+volbar:set_vertical(true):set_ticks(true)
+volbar:set_height(18):set_width(10):set_ticks_size(2)
+volbar:set_background_color(beautiful.fg_off_widget)
+volbar:set_gradient_colors({
+	beautiful.fg_widget,
+	beautiful.fg_center_widget,
+	beautiful.fg_end_widget
+})
+vicious.register(volbar, vicious.widgets.volume, "$1", 1, "Master")
+
 -- weather widget
 weatherwidget = widget({ type = "textbox" })
 vicious.register(weatherwidget, vicious.widgets.weather, "${sky} ${tempc}°C", 1800, "EDDM")
@@ -306,9 +302,7 @@ for s = 1, screen.count() do
         mytextclock,
  	separator, weatherwidget,
 	separator, pomodoro.widget,
-	has_battery and separator,
-	has_battery and batbar.widget,
-	has_battery and batwidget,
+	separator, volbar.widget,
  	separator, upicon, netwidget_up, downicon, netwidget_down,
  	separator, membar.widget,
  	separator, cpugraph.widget,
@@ -364,10 +358,10 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey }, "F12",
     	function ()
             -- Setup terminal on current tag
-	    awful.util.spawn("/usr/bin/gnome-terminal -t mutt@work -x mutt")
-	    awful.util.spawn("/usr/bin/gnome-terminal -t mutt@home -x ssh -t nst.homeunix.net mutt")
+	    awful.util.spawn("/usr/bin/roxterm -T mutt@work -e mutt")
+	    awful.util.spawn("/usr/bin/roxterm -T mutt@home -e ssh -t nst.homeunix.net mutt")
 	    awful.util.spawn(terminal)
-            awful.util.spawn("/usr/bin/gnome-terminal -t irssi -x ssh -t devon.fsck.us screen -rd")
+            awful.util.spawn("/usr/bin/roxterm -T irssi -e ssh -t devon.fsck.us screen -rd")
 
 	    awful.util.spawn("empathy --start-hidden")
 
@@ -376,6 +370,10 @@ globalkeys = awful.util.table.join(
 	end),
     awful.key({ modkey }, "b", function () scratch.drop(terminal .. " -e vim /home/sturm/braindump", nil, nil, 0.5) end),
     awful.key({ modkey }, "l", function () scratch.drop(terminal .. " -e vim /home/sturm/logbuch", nil, nil, 0.5) end),
+    awful.key({}, "XF86AudioRaiseVolume", function ()
+	    awful.util.spawn("amixer set Master 9%+") end),
+    awful.key({}, "XF86AudioLowerVolume", function ()
+	    awful.util.spawn("amixer set Master 9%-") end),
     awful.key({}, "#156", function () os.execute("gksudo -- shutdown -h now") end)
 )
 
@@ -481,7 +479,5 @@ client.add_signal("unfocus", function(c) c.border_color = beautiful.border_norma
 os.execute("gnome-settings-daemon &")
 os.execute("gnome-keyring-daemon")
 os.execute("nm-applet &")
-os.execute("gnome-power-manager &")
-os.execute("gnome-volume-control-applet &")
 os.execute("update-notifier &")
 os.execute("/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1 &")
