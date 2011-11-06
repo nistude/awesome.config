@@ -4,8 +4,6 @@ require("awful.autofocus")
 require("awful.rules")
 -- Theme handling library
 require("beautiful")
--- Notification library
-require("naughty")
 
 -- Widget library
 require("vicious")
@@ -161,15 +159,7 @@ function pomodoro:settime(t)
 end
 
 function pomodoro:notify(title, text, duration, working)
-  naughty.notify {
-    bg = "#ff0000",
-    fg = "#ffffff",
-    font = "Verdana 20",
-    screen = mouse.screen,
-    title = title,
-    text  = text,
-    timeout = 10
-  }
+  os.execute(string.format("notify-send '%s' '%s'", title, text))
 
   pomodoro.left = duration
   pomodoro:settime(duration)
@@ -345,12 +335,9 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey }, "F12",
     	function ()
             -- Setup terminal on current tag
-	    awful.util.spawn("/usr/bin/roxterm -T mutt@work -e mutt")
-	    awful.util.spawn("/usr/bin/roxterm -T mutt@home -e ssh -t nst.homeunix.net mutt")
-	    awful.util.spawn(terminal)
-            awful.util.spawn("/usr/bin/roxterm -T irssi -e ssh -t devon.fsck.us screen -rd")
-
-	    awful.util.spawn("empathy --start-hidden")
+	    awful.util.spawn("roxterm -T mutt@work -e mutt")
+	    awful.util.spawn("roxterm -T mutt@home -e ssh -t nst.homeunix.net mutt")
+            awful.util.spawn("roxterm -T irssi -e ssh -t devon.fsck.us screen -rd")
 
 	    -- Rule sets tag
 	    awful.util.spawn("opera")
@@ -464,3 +451,4 @@ os.execute("gnome-keyring-daemon")
 os.execute("nm-applet &")
 os.execute("update-notifier &")
 os.execute("/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1 &")
+awful.util.spawn("pidgin")
