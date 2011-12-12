@@ -159,7 +159,7 @@ function pomodoro:settime(t)
 end
 
 function pomodoro:notify(title, text, duration, working)
-  os.execute(string.format("notify-send '%s' '%s'", title, text))
+  os.execute(string.format("notify-send -i /usr/share/app-install/icons/_usr_share_pixmaps_tomatoes_icon.png '%s' '%s'", title, text))
 
   pomodoro.left = duration
   pomodoro:settime(duration)
@@ -315,6 +315,8 @@ globalkeys = awful.util.table.join(
     -- Layout manipulation
     awful.key({ modkey,           }, "j", function () awful.client.swap.byidx(  1)    end),
     awful.key({ modkey,           }, "k", function () awful.client.swap.byidx( -1)    end),
+    awful.key({ modkey,           }, "l", function () awful.tag.incmwfact( 0.05)    end),
+    awful.key({ modkey,           }, "h", function () awful.tag.incmwfact(-0.05)    end),
 
     -- Standard program
     awful.key({ modkey,           }, "Return", function () awful.util.spawn(terminal) end),
@@ -343,7 +345,7 @@ globalkeys = awful.util.table.join(
 	    awful.util.spawn("opera")
 	end),
     awful.key({ modkey }, "b", function () scratch.drop(terminal .. " -e vim /home/sturm/braindump", nil, nil, 0.5) end),
-    awful.key({ modkey }, "l", function () scratch.drop(terminal .. " -e vim /home/sturm/logbuch", nil, nil, 0.5) end),
+    -- awful.key({ modkey }, "l", function () scratch.drop(terminal .. " -e vim /home/sturm/logbuch", nil, nil, 0.5) end),
     awful.key({}, "#156", function () os.execute("gksudo -- shutdown -h now") end)
 )
 
@@ -447,8 +449,8 @@ client.add_signal("unfocus", function(c) c.border_color = beautiful.border_norma
 
 -- Start some additional GNOME applets
 os.execute("gnome-settings-daemon &")
-os.execute("gnome-keyring-daemon")
-os.execute("nm-applet &")
-os.execute("update-notifier &")
-os.execute("/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1 &")
+os.execute("pgrep nm-applet > /dev/null || nm-applet &")
+awful.util.spawn("/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1")
+awful.util.spawn("gnome-keyring-daemon")
+awful.util.spawn("update-notifier")
 awful.util.spawn("pidgin")
