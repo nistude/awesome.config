@@ -367,23 +367,33 @@ clientkeys = awful.util.table.join(
 -- tags 5..8 are located on screen 2
 for i = 1, 4 do
     globalkeys = awful.util.table.join(globalkeys,
-        awful.key({ modkey }, "#" .. i + 9,
-	          function ()
-	              local screen = 1
-		      if tags[screen][i] then
-		          awful.tag.viewonly(tags[screen][i])
-	    	      end
-		  end))
+        awful.key({ modkey }, "#" .. i + 9, function ()
+	    local screen = 1
+            if tags[screen][i] then
+                awful.tag.viewonly(tags[screen][i])
+            end
+        end),
+	awful.key({ modkey, "Shift" }, "#" .. i + 9, function ()
+            if client.focus and tags[client.focus.screen][i] then
+                awful.client.movetotag(tags[client.focus.screen][i])
+	    end
+	end)
+    )
 end
 for i = 1, 4 do
     globalkeys = awful.util.table.join(globalkeys,
-        awful.key({ modkey }, "#" .. i + 4 + 9,
-	          function ()
-	              local screen = 2
-		      if tags[screen][i] then
-		          awful.tag.viewonly(tags[screen][i])
-	    	      end
-		  end))
+        awful.key({ modkey }, "#" .. i + 4 + 9, function ()
+            local screen = 2
+            if tags[screen][i] then
+                awful.tag.viewonly(tags[screen][i])
+            end
+        end),
+	awful.key({ modkey, "Shift" }, "#" .. i + 4 + 9, function ()
+	    if client.focus and tags[client.focus.screen][i] then
+		awful.client.movetotag(tags[client.focus.screen][i])
+	    end
+	end)
+    )
 end
 
 clientbuttons = awful.util.table.join(
