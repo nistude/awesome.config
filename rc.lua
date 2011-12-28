@@ -339,10 +339,12 @@ globalkeys = awful.util.table.join(
             -- Setup terminal on current tag
 	    awful.util.spawn("roxterm -T mutt@work -e mutt")
 	    awful.util.spawn("roxterm -T mutt@home -e ssh -t nst.homeunix.net mutt")
-            awful.util.spawn("roxterm -T irssi -e ssh -t devon.fsck.us screen -rd")
+            awful.util.spawn("roxterm -T campfire_notify -e /home/sturm/bin/campfire-libnotify.py")
+	    awful.util.spawn("pidgin")
 
 	    -- Rule sets tag
 	    awful.util.spawn("opera")
+	    awful.util.spawn("firefox")
 	end),
     awful.key({ modkey }, "b", function () scratch.drop(terminal .. " -e vim /home/sturm/braindump", nil, nil, 0.5) end),
     -- awful.key({ modkey }, "l", function () scratch.drop(terminal .. " -e vim /home/sturm/logbuch", nil, nil, 0.5) end),
@@ -421,6 +423,7 @@ awful.rules.rules = {
     { rule = { class = "Mysql-workbench-bin" }, properties = { floating = true } },
     -- Set Opera to always map on tags number 2 of screen 1.
     { rule = { class = "Opera" }, properties = { tag = tags[1][2] } },
+    { rule = { class = "Firefox" }, properties = { tag = tags[1][3] } },
     { rule = { class = "Unison" }, properties = { floating = true } },
     { rule = { class = "VirtualBox" }, properties = { floating = true } }
 }
@@ -463,4 +466,3 @@ os.execute("pgrep nm-applet > /dev/null || nm-applet &")
 awful.util.spawn("/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1")
 awful.util.spawn("gnome-keyring-daemon")
 awful.util.spawn("update-notifier")
-awful.util.spawn("pidgin")
