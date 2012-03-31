@@ -11,8 +11,11 @@ require("vicious")
 -- Scratchpad
 require("scratch")
 
--- Load Debian menu entries
-require("debian.menu")
+-- Notifications
+require("naughty")
+
+naughty.config.default_preset.timeout = 10
+naughty.config.default_preset.screen  = mouse.screen
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, and wallpapers
@@ -70,7 +73,6 @@ myawesomemenu = {
 }
 
 mymainmenu = awful.menu({ items = { { "awesome", myawesomemenu, beautiful.awesome_icon },
-                                    { "Debian", debian.menu.Debian_menu.Debian },
                                     { "open terminal", terminal }
                                   }
                         })
@@ -194,6 +196,51 @@ pomodoro.timer:add_signal("timeout", function()
   end
 end)
 
+-- Volume widget
+
+volumecfg = {}
+volumecfg.cardid  = 1
+volumecfg.channel = "PCM"
+volumecfg.widget = widget({ type = "textbox", name = "volumecfg.widget", align = "right" })
+
+volumecfg_t = awful.tooltip({ objects = { volumecfg.widget },})
+volumecfg_t:set_text("Volume")
+
+-- command must start with a space!
+volumecfg.mixercommand = function (command)
+  local fd = io.popen("amixer -c " .. volumecfg.cardid .. command)
+  local status = fd:read("*all")
+  fd:close()
+
+  local volume = string.match(status, "(%d?%d?%d)%%")
+  volume = string.format("% 3d", volume)
+  status = string.match(status, "%[(o[^%]]*)%]")
+  if string.find(status, "on", 1, true) then
+    volume = volume .. "%"
+  else
+    volume = volume .. "M"
+  end
+  volumecfg.widget.text = volume
+end
+volumecfg.update = function ()
+  volumecfg.mixercommand(" sget " .. volumecfg.channel)
+end
+volumecfg.up = function ()
+  volumecfg.mixercommand(" sset " .. volumecfg.channel .. " 1%+ unmute")
+end
+volumecfg.down = function ()
+  volumecfg.mixercommand(" sset " .. volumecfg.channel .. " 1%-")
+end
+volumecfg.toggle = function ()
+  volumecfg.mixercommand(" sset " .. volumecfg.channel .. " toggle")
+end
+volumecfg.widget:buttons({
+  button({ }, 4, function () volumecfg.up() end),
+  button({ }, 5, function () volumecfg.down() end),
+  button({ }, 1, function () volumecfg.toggle() end)
+})
+volumecfg.update()
+
 -- weather widget
 weatherwidget = widget({ type = "textbox" })
 vicious.register(weatherwidget, vicious.widgets.weather, "${sky} ${tempc}°C", 1800, "EDDM")
@@ -280,10 +327,11 @@ for s = 1, screen.count() do
         mytextclock,
  	separator, weatherwidget,
 	separator, pomodoro.widget,
- 	separator, upicon, netwidget_up, downicon, netwidget_down,
+        separator, volumecfg.widget,
  	separator, membar.widget,
  	separator, cpugraph.widget,
  	separator, diskgraph.widget,
+ 	separator, upicon, netwidget_up, downicon, netwidget_down,
 	separator,
         s == 1 and mysystray or nil,
         mytasklist[s],
@@ -348,6 +396,9 @@ globalkeys = awful.util.table.join(
 	end),
     awful.key({ modkey }, "b", function () scratch.drop(terminal .. " -e vim /home/sturm/braindump", nil, nil, 0.5) end),
     -- awful.key({ modkey }, "l", function () scratch.drop(terminal .. " -e vim /home/sturm/logbuch", nil, nil, 0.5) end),
+    awful.key({}, "XF86AudioMute", function () volumecfg.toggle() end),
+    awful.key({}, "XF86AudioLowerVolume", function () volumecfg.down() end),
+    awful.key({}, "XF86AudioRaiseVolume", function () volumecfg.up() end),
     awful.key({}, "#156", function () os.execute("gksudo -- shutdown -h now") end)
 )
 
@@ -461,8 +512,8 @@ client.add_signal("unfocus", function(c) c.border_color = beautiful.border_norma
 -- }}}
 
 -- Start some additional GNOME applets
-os.execute("gnome-settings-daemon &")
+os.execute("xsettingsd &")
 os.execute("pgrep nm-applet > /dev/null || nm-applet &")
 awful.util.spawn("/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1")
-awful.util.spawn("gnome-keyring-daemon")
+-- awful.util.spawn("gnome-keyring-daemon")
 awful.util.spawn("update-notifier")
