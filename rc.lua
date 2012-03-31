@@ -199,8 +199,19 @@ end)
 -- Volume widget
 
 volumecfg = {}
-volumecfg.cardid  = 1
-volumecfg.channel = "PCM"
+
+local fd = io.popen("hostname")
+local hostname = fd:read()
+fd:close()
+print(hostname)
+if hostname == "desktop" then
+  volumecfg.cardid  = 1
+  volumecfg.channel = "PCM"
+elseif hostname == "marvin" then
+  volumecfg.cardid  = 0
+  volumecfg.channel = "Master"
+end
+
 volumecfg.widget = widget({ type = "textbox", name = "volumecfg.widget", align = "right" })
 
 volumecfg_t = awful.tooltip({ objects = { volumecfg.widget },})
@@ -234,11 +245,12 @@ end
 volumecfg.toggle = function ()
   volumecfg.mixercommand(" sset " .. volumecfg.channel .. " toggle")
 end
-volumecfg.widget:buttons({
-  button({ }, 4, function () volumecfg.up() end),
-  button({ }, 5, function () volumecfg.down() end),
-  button({ }, 1, function () volumecfg.toggle() end)
-})
+volumecfg.widget:buttons(
+  awful.util.table.join(
+    awful.button({ }, 4, function () volumecfg.up() end),
+    awful.button({ }, 5, function () volumecfg.down() end),
+    awful.button({ }, 1, function () volumecfg.toggle() end)
+))
 volumecfg.update()
 
 -- weather widget
