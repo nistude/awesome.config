@@ -82,6 +82,22 @@ mylauncher = awful.widget.launcher({ image = image(beautiful.awesome_icon),
 -- }}}
 
 -- {{{ Wibox
+-- battery widget
+has_battery = awful.util.file_readable("/sys/class/power_supply/BAT0")
+batbar = awful.widget.progressbar()
+batbar:set_vertical(true):set_ticks(true)
+batbar:set_height(18):set_width(10):set_ticks_size(2)
+batbar:set_background_color(beautiful.fg_off_widget)
+batbar:set_gradient_colors({
+  beautiful.fg_end_widget,
+  beautiful.fg_center_widget,
+  beautiful.fg_widget
+})
+vicious.register(batbar, vicious.widgets.bat, "$2", 60, "BAT0")
+
+batwidget = widget({ type = "textbox" })
+vicious.register(batwidget, vicious.widgets.bat, "$1/$3 ", 60, "BAT0")
+
 -- cpu widget
 cpugraph = awful.widget.graph()
 cpugraph:set_width(40):set_height(18)
@@ -161,7 +177,16 @@ function pomodoro:settime(t)
 end
 
 function pomodoro:notify(title, text, duration, working)
-  os.execute(string.format("notify-send -i /usr/share/app-install/icons/_usr_share_pixmaps_tomatoes_icon.png '%s' '%s'", title, text))
+  naughty.notify {
+    bg = "#ff0000",
+    fg = "#ffffff",
+    font = "Verdana 20",
+    screen = mouse.screen,
+    title = title,
+    text  = text,
+    timeout = 10,
+    icon = "/usr/share/app-install/icons/_usr_share_pixmaps_tomatoes_icon.png"
+  }
 
   pomodoro.left = duration
   pomodoro:settime(duration)
@@ -340,6 +365,9 @@ for s = 1, screen.count() do
  	separator, weatherwidget,
 	separator, pomodoro.widget,
         separator, volumecfg.widget,
+        has_battery and separator,
+        has_battery and batbar.widget,
+        has_battery and batwidget,
  	separator, membar.widget,
  	separator, cpugraph.widget,
  	separator, diskgraph.widget,
@@ -411,6 +439,7 @@ globalkeys = awful.util.table.join(
     awful.key({}, "XF86AudioMute", function () volumecfg.toggle() end),
     awful.key({}, "XF86AudioLowerVolume", function () volumecfg.down() end),
     awful.key({}, "XF86AudioRaiseVolume", function () volumecfg.up() end),
+    awful.key({}, "XF86ScreenSaver", function () os.execute("gnome-screensaver-command --lock") end),
     awful.key({}, "#156", function () os.execute("gksudo -- shutdown -h now") end)
 )
 
@@ -526,6 +555,7 @@ client.add_signal("unfocus", function(c) c.border_color = beautiful.border_norma
 -- Start some additional GNOME applets
 os.execute("xsettingsd &")
 os.execute("pgrep nm-applet > /dev/null || nm-applet &")
+os.execute("gnome-screensaver &")
 awful.util.spawn("/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1")
--- awful.util.spawn("gnome-keyring-daemon")
+awful.util.spawn("gnome-keyring-daemon")
 awful.util.spawn("update-notifier")
