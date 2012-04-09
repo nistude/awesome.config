@@ -207,7 +207,7 @@ print(hostname)
 if hostname == "desktop" then
   volumecfg.cardid  = 1
   volumecfg.channel = "PCM"
-elseif hostname == "marvin" then
+else
   volumecfg.cardid  = 0
   volumecfg.channel = "Master"
 end
