@@ -388,6 +388,20 @@ root.buttons(awful.util.table.join(
 ))
 -- }}}
 
+function lock_screen()
+  os.execute("gnome-screensaver-command --lock && sleep 5")
+end
+
+function suspend()
+  lock_screen()
+  os.execute("sudo pm-suspend")
+end
+
+function hibernate()
+  lock_screen()
+  os.execute("sudo pm-hibernate")
+end
+
 -- {{{ Key bindings
 globalkeys = awful.util.table.join(
     awful.key({ modkey,           }, "Left",   awful.tag.viewprev       ),
@@ -439,7 +453,9 @@ globalkeys = awful.util.table.join(
     awful.key({}, "XF86AudioMute", function () volumecfg.toggle() end),
     awful.key({}, "XF86AudioLowerVolume", function () volumecfg.down() end),
     awful.key({}, "XF86AudioRaiseVolume", function () volumecfg.up() end),
-    awful.key({}, "XF86ScreenSaver", function () os.execute("gnome-screensaver-command --lock") end),
+    awful.key({}, "XF86ScreenSaver", function () lock_screen() end),
+    awful.key({}, "XF86Sleep", function () suspend() end),
+    awful.key({}, "XF86Suspend", function () hibernate() end),
     awful.key({}, "#156", function () os.execute("gksudo -- shutdown -h now") end)
 )
 
