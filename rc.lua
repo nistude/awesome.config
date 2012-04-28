@@ -228,7 +228,6 @@ volumecfg = {}
 local fd = io.popen("hostname")
 local hostname = fd:read()
 fd:close()
-print(hostname)
 if hostname == "desktop" then
   volumecfg.cardid  = 1
   volumecfg.channel = "PCM"
