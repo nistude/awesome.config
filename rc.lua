@@ -112,7 +112,7 @@ diskgraph = awful.widget.graph()
 diskgraph:set_width(40):set_height(18)
 diskgraph:set_background_color(beautiful.fg_off_widget)
 diskgraph:set_gradient_angle(0):set_color(beautiful.fg_end_widget)
-vicious.register(diskgraph, vicious.widgets.dio, "${total_kb}", 1, "sda")
+vicious.register(diskgraph, vicious.widgets.dio, "${sda total_kb}", 1)
 
 -- memory usage widget
 membar = awful.widget.progressbar()
@@ -228,7 +228,6 @@ volumecfg = {}
 local fd = io.popen("hostname")
 local hostname = fd:read()
 fd:close()
-print(hostname)
 if hostname == "desktop" then
   volumecfg.cardid  = 1
   volumecfg.channel = "PCM"
