@@ -440,12 +440,10 @@ globalkeys = awful.util.table.join(
             -- Setup terminal on current tag
 	    awful.util.spawn("roxterm -T mutt@work -e mutt")
 	    awful.util.spawn("roxterm -T mutt@home -e ssh -t nst.homeunix.net mutt")
-            awful.util.spawn("roxterm -T campfire_notify -e /home/sturm/bin/campfire-libnotify.py")
 	    awful.util.spawn("pidgin")
 
 	    -- Rule sets tag
-	    awful.util.spawn("opera")
-	    awful.util.spawn("firefox")
+	    awful.util.spawn("google-chrome")
 	end),
     awful.key({ modkey }, "b", function () scratch.drop(terminal .. " -e vim /home/sturm/braindump", nil, nil, 0.5) end),
     -- awful.key({ modkey }, "l", function () scratch.drop(terminal .. " -e vim /home/sturm/logbuch", nil, nil, 0.5) end),
