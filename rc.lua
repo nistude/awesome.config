@@ -572,6 +572,7 @@ client.add_signal("unfocus", function(c) c.border_color = beautiful.border_norma
 os.execute("xsettingsd &")
 os.execute("pgrep nm-applet > /dev/null || nm-applet &")
 os.execute("gnome-screensaver &")
+os.execute("gtk-redshift -l 48.15:11.58 &")
 awful.util.spawn("/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1")
 awful.util.spawn("gnome-keyring-daemon")
 awful.util.spawn("update-notifier")
