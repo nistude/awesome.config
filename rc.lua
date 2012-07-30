@@ -52,7 +52,7 @@ layouts =
 -- Define a tag table which hold all screen tags.
 tags = {
     settings = {
-        { layout = { layouts[6], layouts[1], layouts[6], layouts[6] } },
+        { layout = { layouts[6], layouts[6], layouts[6], layouts[6] } },
         { layout = { layouts[6], layouts[6], layouts[6], layouts[6] } }
     }
 }
@@ -525,11 +525,11 @@ awful.rules.rules = {
                      buttons = clientbuttons } },
     -- get window class with xprop
     { rule = { class = "Evince" }, properties = { floating = true } },
-    { rule = { class = "Firefox" }, properties = { tag = tags[1][3] } },
-    { rule = { class = "Google-chrome" }, properties = { tag = tags[1][2] } },
+    { rule = { class = "Firefox" }, properties = { tag = tags[2][2] } },
+    { rule = { class = "Google-chrome" }, properties = { tag = tags[2][1] } },
     { rule = { class = "MPlayer" }, properties = { floating = true } },
     { rule = { class = "Mysql-workbench-bin" }, properties = { floating = true } },
-    { rule = { class = "Opera" }, properties = { tag = tags[1][3] } },
+    { rule = { class = "Opera" }, properties = { tag = tags[2][3] } },
     { rule = { class = "Unison" }, properties = { floating = true } },
     { rule = { class = "VirtualBox" }, properties = { floating = true } }
 }
