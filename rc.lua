@@ -52,7 +52,7 @@ layouts =
 -- Define a tag table which hold all screen tags.
 tags = {
     settings = {
-        { layout = { layouts[6], layouts[1], layouts[6], layouts[6] } },
+        { layout = { layouts[6], layouts[6], layouts[6], layouts[6] } },
         { layout = { layouts[6], layouts[6], layouts[6], layouts[6] } }
     }
 }
