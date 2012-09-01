@@ -452,7 +452,7 @@ globalkeys = awful.util.table.join(
     awful.key({}, "XF86AudioRaiseVolume", function () volumecfg.up() end),
     awful.key({}, "XF86ScreenSaver", function () lock_screen() end),
     awful.key({}, "XF86Sleep", function () suspend() end),
-    awful.key({}, "XF86Suspend", function () hibernate() end),
+    --awful.key({}, "XF86Suspend", function () hibernate() end),
     awful.key({}, "#156", function () os.execute("gksudo -- shutdown -h now") end)
 )
 
@@ -526,10 +526,9 @@ awful.rules.rules = {
     -- get window class with xprop
     { rule = { class = "Evince" }, properties = { floating = true } },
     { rule = { class = "Firefox" }, properties = { tag = tags[1][3] } },
-    { rule = { class = "Google-chrome" }, properties = { tag = tags[1][2] } },
+    { rule = { class = "Google-chrome" }, properties = { floating = true } },
     { rule = { class = "MPlayer" }, properties = { floating = true } },
     { rule = { class = "Mysql-workbench-bin" }, properties = { floating = true } },
-    { rule = { class = "Opera" }, properties = { tag = tags[1][3] } },
     { rule = { class = "Unison" }, properties = { floating = true } },
     { rule = { class = "VirtualBox" }, properties = { floating = true } }
 }
