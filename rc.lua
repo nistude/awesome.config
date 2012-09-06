@@ -525,8 +525,7 @@ awful.rules.rules = {
                      buttons = clientbuttons } },
     -- get window class with xprop
     { rule = { class = "Evince" }, properties = { floating = true } },
-    { rule = { class = "Firefox" }, properties = { tag = tags[1][3] } },
-    { rule = { class = "Google-chrome" }, properties = { floating = true } },
+    { rule = { class = "Firefox" }, properties = { tag = tags[1][4] } },
     { rule = { class = "MPlayer" }, properties = { floating = true } },
     { rule = { class = "Mysql-workbench-bin" }, properties = { floating = true } },
     { rule = { class = "Unison" }, properties = { floating = true } },
