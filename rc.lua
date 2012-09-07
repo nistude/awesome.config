@@ -452,7 +452,7 @@ globalkeys = awful.util.table.join(
     awful.key({}, "XF86AudioRaiseVolume", function () volumecfg.up() end),
     awful.key({}, "XF86ScreenSaver", function () lock_screen() end),
     awful.key({}, "XF86Sleep", function () suspend() end),
-    awful.key({}, "XF86Suspend", function () hibernate() end),
+    --awful.key({}, "XF86Suspend", function () hibernate() end),
     awful.key({}, "#156", function () os.execute("gksudo -- shutdown -h now") end)
 )
 
@@ -525,11 +525,9 @@ awful.rules.rules = {
                      buttons = clientbuttons } },
     -- get window class with xprop
     { rule = { class = "Evince" }, properties = { floating = true } },
-    { rule = { class = "Firefox" }, properties = { tag = tags[1][3] } },
-    { rule = { class = "Google-chrome" }, properties = { tag = tags[1][2] } },
+    { rule = { class = "Firefox" }, properties = { tag = tags[1][4] } },
     { rule = { class = "MPlayer" }, properties = { floating = true } },
     { rule = { class = "Mysql-workbench-bin" }, properties = { floating = true } },
-    { rule = { class = "Opera" }, properties = { tag = tags[1][3] } },
     { rule = { class = "Unison" }, properties = { floating = true } },
     { rule = { class = "VirtualBox" }, properties = { floating = true } }
 }
@@ -570,7 +568,7 @@ client.add_signal("unfocus", function(c) c.border_color = beautiful.border_norma
 os.execute("xsettingsd &")
 os.execute("pgrep nm-applet > /dev/null || nm-applet &")
 os.execute("gnome-screensaver &")
-os.execute("gtk-redshift -l 48.15:11.58 &")
+os.execute("gtk-redshift -l 48.13:11.54 &")
 awful.util.spawn("/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1")
 awful.util.spawn("gnome-keyring-daemon")
 awful.util.spawn("update-notifier")
