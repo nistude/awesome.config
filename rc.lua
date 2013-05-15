@@ -420,7 +420,7 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey,           }, "h", function () awful.tag.incmwfact(-0.05)    end),
 
     -- Standard program
-    awful.key({ modkey,           }, "Return", function () awful.util.spawn(terminal) end),
+    awful.key({ modkey,           }, "Return", function () awful.util.spawn_with_shell(terminal) end),
     awful.key({ modkey, "Control" }, "r", awesome.restart),
     awful.key({ modkey, "Control" }, "q", awesome.quit),
 
@@ -438,12 +438,12 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey }, "F12",
     	function ()
             -- Setup terminal on current tag
-	    awful.util.spawn("roxterm -T mutt@work -e mutt")
-	    awful.util.spawn("roxterm -T mutt@home -e ssh -t nst.homeunix.net mutt")
-	    awful.util.spawn("pidgin")
+	    awful.util.spawn_with_shell("roxterm -T mutt@work -e mutt")
+	    awful.util.spawn_with_shell("roxterm -T mutt@home -e ssh -t nst.homeunix.net mutt")
+	    awful.util.spawn_with_shell("pidgin")
 
 	    -- Rule sets tag
-	    awful.util.spawn("google-chrome")
+	    awful.util.spawn_with_shell("google-chrome")
 	end),
     awful.key({ modkey }, "b", function () scratch.drop(terminal .. " -e vim /home/sturm/braindump", nil, nil, 0.5) end),
     -- awful.key({ modkey }, "l", function () scratch.drop(terminal .. " -e vim /home/sturm/logbuch", nil, nil, 0.5) end),
@@ -569,6 +569,6 @@ os.execute("xsettingsd &")
 os.execute("pgrep nm-applet > /dev/null || nm-applet &")
 os.execute("gnome-screensaver &")
 os.execute("gtk-redshift -l 48.13:11.54 &")
-awful.util.spawn("/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1")
-awful.util.spawn("gnome-keyring-daemon")
-awful.util.spawn("update-notifier")
+awful.util.spawn_with_shell("/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1")
+awful.util.spawn_with_shell("gnome-keyring-daemon")
+awful.util.spawn_with_shell("update-notifier")
