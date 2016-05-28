@@ -1,21 +1,46 @@
 -- Standard awesome library
-require("awful")
+local awful = require("awful")
+awful.rules = require("awful.rules")
 require("awful.autofocus")
-require("awful.rules")
 -- Theme handling library
-require("beautiful")
+local beautiful = require("beautiful")
 
 -- Widget library
-require("vicious")
-
--- Scratchpad
-require("scratch")
+local vicious = require("vicious")
+local wibox = require("wibox")
 
 -- Notifications
-require("naughty")
+local naughty = require("naughty")
 
-naughty.config.default_preset.timeout = 10
-naughty.config.default_preset.screen  = mouse.screen
+naughty.config.presets.low.timeout = 10
+naughty.config.presets.normal.timeout = 10
+naughty.config.presets.critical.timeout = 10
+naughty.config.defaults.screen  = mouse.screen
+
+-- {{{ Error handling
+-- Check if awesome encountered an error during startup and fell back to
+-- another config (This code will only ever execute for the fallback config)
+if awesome.startup_errors then
+    naughty.notify({ preset = naughty.config.presets.critical,
+                     title = "Oops, there were errors during startup!",
+                     text = awesome.startup_errors })
+end
+
+-- Handle runtime errors after startup
+do
+    local in_error = false
+    awesome.connect_signal("debug::error", function (err)
+        -- Make sure we don't go into an endless error loop
+        if in_error then return end
+        in_error = true
+
+        naughty.notify({ preset = naughty.config.presets.critical,
+                         title = "Oops, an error happened!",
+                         text = err })
+        in_error = false
+    end)
+end
+-- }}}
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, and wallpapers
@@ -77,7 +102,7 @@ mymainmenu = awful.menu({ items = { { "awesome", myawesomemenu, beautiful.awesom
                                   }
                         })
 
-mylauncher = awful.widget.launcher({ image = image(beautiful.awesome_icon),
+mylauncher = awful.widget.launcher({ image = beautiful.awesome_icon,
                                      menu = mymainmenu })
 -- }}}
 
@@ -88,208 +113,172 @@ batbar = awful.widget.progressbar()
 batbar:set_vertical(true):set_ticks(true)
 batbar:set_height(18):set_width(10):set_ticks_size(2)
 batbar:set_background_color(beautiful.fg_off_widget)
-batbar:set_gradient_colors({
-  beautiful.fg_end_widget,
-  beautiful.fg_center_widget,
-  beautiful.fg_widget
+batbar:set_color({
+  type = "linear", from = { 0, 0 }, to = { 0, 18 },
+  stops = {
+    { 0, beautiful.fg_end_widget, },
+    { 0.5, beautiful.fg_center_widget, },
+    { 1, beautiful.fg_widget }
+  }
 })
 vicious.register(batbar, vicious.widgets.bat, "$2", 60, "BAT0")
 
-batwidget = widget({ type = "textbox" })
+batwidget = wibox.widget.textbox()
 vicious.register(batwidget, vicious.widgets.bat, "$1/$3 ", 60, "BAT0")
 
 -- cpu widget
 cpugraph = awful.widget.graph()
 cpugraph:set_width(40):set_height(18)
 cpugraph:set_background_color(beautiful.fg_off_widget)
-cpugraph:set_gradient_angle(0):set_gradient_colors({
-    beautiful.fg_end_widget, beautiful.fg_center_widget, beautiful.fg_widget
+cpugraph:set_color({
+  type = "linear", from = { 0, 0 }, to = { 0, 18 },
+  stops = {
+    { 0, beautiful.fg_end_widget },
+    { 0.5, beautiful.fg_center_widget },
+    { 1, beautiful.fg_widget }
+  }
 })
 vicious.register(cpugraph, vicious.widgets.cpu, "$1", 1)
+cpugraph_mirrored = wibox.layout.mirror(cpugraph, { vertical = true })
 
 -- disk I/O widget
 diskgraph = awful.widget.graph()
 diskgraph:set_width(40):set_height(18)
 diskgraph:set_background_color(beautiful.fg_off_widget)
-diskgraph:set_gradient_angle(0):set_color(beautiful.fg_end_widget)
+diskgraph:set_color(beautiful.fg_end_widget)
 vicious.register(diskgraph, vicious.widgets.dio, "${sda total_kb}", 1)
+diskgraph_mirrored = wibox.layout.mirror(diskgraph, { vertical = true })
 
 -- memory usage widget
 membar = awful.widget.progressbar()
 membar:set_vertical(true):set_ticks(true)
 membar:set_height(18):set_width(10):set_ticks_size(2)
 membar:set_background_color(beautiful.fg_off_widget)
-membar:set_gradient_colors({
-    beautiful.fg_widget,
-    beautiful.fg_center_widget,
-    beautiful.fg_end_widget
+membar:set_color({
+  type = "linear", from = { 0, 0 }, to = { 0, 10 },
+  stops = {
+    { 0, beautiful.fg_end_widget },
+    { 0.5, beautiful.fg_center_widget },
+    { 1, beautiful.fg_widget }
+  }
 })
 vicious.register(membar, vicious.widgets.mem, "$1", 10)
 
 -- network usage widget
-netwidget_down = widget({ type = "textbox" })
+netwidget_down = wibox.widget.textbox()
 vicious.register(netwidget_down, vicious.widgets.net, '${eth0 down_kb}/${wlan0 down_kb}')
-downicon = widget({ type = "imagebox" })
-downicon.image = image(beautiful.widget_net_down)
+downicon = wibox.widget.imagebox()
+downicon:set_image(beautiful.widget_net_down)
 
-netwidget_up = widget({ type = "textbox" })
+netwidget_up = wibox.widget.textbox()
 vicious.register(netwidget_up, vicious.widgets.net, '${eth0 up_kb}/${wlan0 up_kb}')
-upicon = widget({ type = "imagebox" })
-upicon.image = image(beautiful.widget_net_up)
-
--- pomodoro timer widget
-pomodoro = {}
--- tweak these values in seconds to your liking
-pomodoro.pause_duration = 300
-pomodoro.work_duration = 1500
-
-pomodoro.pause_title = "Pause finished."
-pomodoro.pause_text = "Get back to work!"
-pomodoro.work_title = "Pomodoro finished."
-pomodoro.work_text = "Time for a pause!"
-pomodoro.working = true
-pomodoro.left = pomodoro.work_duration
-pomodoro.widget = widget({ type = "textbox" })
-pomodoro.timer = timer { timeout = 1 }
-
-function pomodoro:start()
-	pomodoro.last_time = os.time()
-	pomodoro.timer:start()
-end
-
-function pomodoro:stop()
-	pomodoro.timer:stop()
-end
-
-function pomodoro:reset()
-	pomodoro.timer:stop()
-	pomodoro.left = pomodoro.work_duration
-	pomodoro:settime(pomodoro.work_duration)
-end
-
-function pomodoro:settime(t)
-  if t >= 3600 then -- more than one hour!
-    t = os.date("%X", t-3600)
-  else
-    t = os.date("%M:%S", t)
-  end
-  self.widget.text = string.format("Pomodoro: <b>%s</b>", t)
-end
-
-function pomodoro:notify(title, text, duration, working)
-  naughty.notify {
-    bg = "#ff0000",
-    fg = "#ffffff",
-    font = "Verdana 20",
-    screen = mouse.screen,
-    title = title,
-    text  = text,
-    timeout = 10,
-    icon = "/usr/share/app-install/icons/_usr_share_pixmaps_tomatoes_icon.png"
-  }
-
-  pomodoro.left = duration
-  pomodoro:settime(duration)
-  pomodoro.working = working
-end
-
-pomodoro:settime(pomodoro.work_duration)
-
-pomodoro.widget:buttons(
-  awful.util.table.join(
-    awful.button({ }, 1, function() pomodoro:start() end),
-    awful.button({ }, 2, function() pomodoro:stop() end),
-    awful.button({ }, 3, function() pomodoro:reset() end)
-))
-
-pomodoro.timer:add_signal("timeout", function()
-  local now = os.time()
-  pomodoro.left = pomodoro.left - (now - pomodoro.last_time)
-  pomodoro.last_time = now
-
-  if pomodoro.left > 0 then
-    pomodoro:settime(pomodoro.left)
-  else
-    if pomodoro.working then
-      pomodoro:notify(pomodoro.work_title, pomodoro.work_text,
-	pomodoro.pause_duration, false)
-    else
-      pomodoro:notify(pomodoro.pause_title, pomodoro.pause_text,
-        pomodoro.work_duration, true)
-    end
-    pomodoro.timer:stop()
-  end
-end)
+upicon = wibox.widget.imagebox()
+upicon:set_image(beautiful.widget_net_up)
 
 -- Volume widget
+local alsawidget = {
+  channel = "Master",
+  step = "1%",
+  colors = {
+    unmute = "#AECF96",
+    mute = "#FF5656"
+  },
+  mixer = terminal .. " -e alsamixer", -- or whatever your preferred sound mixer is
+  notifications = {
+    icons = {
+      -- the first item is the 'muted' icon
+      "/usr/share/icons/gnome/48x48/status/audio-volume-muted.png",
+      -- the rest of the items correspond to intermediate volume levels - you can have as many as you want (but must be >= 1)
+      "/usr/share/icons/gnome/48x48/status/audio-volume-low.png",
+      "/usr/share/icons/gnome/48x48/status/audio-volume-medium.png",
+      "/usr/share/icons/gnome/48x48/status/audio-volume-high.png"
+    },
+    font = "Monospace 11", -- must be a monospace font for the bar to be sized consistently
+    icon_size = 48,
+    bar_size = 18 -- adjust to fit your font if the bar doesn't fit
+  }
+}
 
-volumecfg = {}
+alsawidget.bar = awful.widget.progressbar ()
+alsawidget.bar:set_width (8)
+alsawidget.bar:set_vertical (true)
+alsawidget.bar:set_background_color ("#494B4F")
+alsawidget.bar:set_color (alsawidget.colors.unmute)
 
-local fd = io.popen("hostname")
-local hostname = fd:read()
-fd:close()
-if hostname == "desktop" then
-  volumecfg.cardid  = 1
-  volumecfg.channel = "PCM"
-else
-  volumecfg.cardid  = 0
-  volumecfg.channel = "Master"
-end
+alsawidget.tooltip = awful.tooltip ({ objects = { alsawidget.bar } })
 
-volumecfg.widget = widget({ type = "textbox", name = "volumecfg.widget", align = "right" })
+-- naughty notifications
+alsawidget._current_level = 0
+alsawidget._muted = false
 
-volumecfg_t = awful.tooltip({ objects = { volumecfg.widget },})
-volumecfg_t:set_text("Volume")
-
--- command must start with a space!
-volumecfg.mixercommand = function (command)
-  local fd = io.popen("amixer -c " .. volumecfg.cardid .. command)
-  local status = fd:read("*all")
-  fd:close()
-
-  local volume = string.match(status, "(%d?%d?%d)%%")
-  volume = string.format("% 3d", volume)
-  status = string.match(status, "%[(o[^%]]*)%]")
-  if string.find(status, "on", 1, true) then
-    volume = volume .. "%"
-  else
-    volume = volume .. "M"
+function alsawidget:notify ()
+  local preset = {
+    height = 75,
+    width = 300,
+    font = alsawidget.notifications.font
+  }
+  local i = 1;
+  while alsawidget.notifications.icons[i + 1] ~= nil do
+    i = i + 1
   end
-  volumecfg.widget.text = volume
+  if i >= 2 then
+    preset.icon_size = alsawidget.notifications.icon_size
+    if alsawidget._muted or alsawidget._current_level == 0 then
+      preset.icon = alsawidget.notifications.icons[1]
+    elseif alsawidget._current_level == 100 then
+      preset.icon = alsawidget.notifications.icons[i]
+    else
+      local int = math.modf (alsawidget._current_level / 100 * (i - 1))
+      preset.icon = alsawidget.notifications.icons[int + 2]
+    end
+  end
+  if alsawidget._muted then
+    preset.title = alsawidget.channel .. " - Muted"
+  elseif alsawidget._current_level == 0 then
+    preset.title = alsawidget.channel .. " - 0% (muted)"
+    preset.text = "[" .. string.rep (" ", alsawidget.notifications.bar_size) .. "]"
+  elseif alsawidget._current_level == 100 then
+    preset.title = alsawidget.channel .. " - 100% (max)"
+    preset.text = "[" .. string.rep ("|", alsawidget.notifications.bar_size) .. "]"
+  else
+    local int = math.modf (alsawidget._current_level / 100 * alsawidget.notifications.bar_size)
+    preset.title = alsawidget.channel .. " - " .. alsawidget._current_level .. "%"
+    preset.text = "[" .. string.rep ("|", int) .. string.rep (" ", alsawidget.notifications.bar_size - int) .. "]"
+  end
+  if alsawidget._notify ~= nil then
+    alsawidget._notify = naughty.notify ({
+      replaces_id = alsawidget._notify.id,
+      preset = preset
+    })
+  else
+    alsawidget._notify = naughty.notify ({ preset = preset })
+  end
 end
-volumecfg.update = function ()
-  volumecfg.mixercommand(" sget " .. volumecfg.channel)
-end
-volumecfg.up = function ()
-  volumecfg.mixercommand(" sset " .. volumecfg.channel .. " 1%+ unmute")
-end
-volumecfg.down = function ()
-  volumecfg.mixercommand(" sset " .. volumecfg.channel .. " 1%-")
-end
-volumecfg.toggle = function ()
-  volumecfg.mixercommand(" sset " .. volumecfg.channel .. " toggle")
-end
-volumecfg.widget:buttons(
-  awful.util.table.join(
-    awful.button({ }, 4, function () volumecfg.up() end),
-    awful.button({ }, 5, function () volumecfg.down() end),
-    awful.button({ }, 1, function () volumecfg.toggle() end)
-))
-volumecfg.update()
+
+vicious.register (alsawidget.bar, vicious.widgets.volume, function (widget, args)
+  alsawidget._current_level = args[1]
+  if args[2] == "♩" then
+    alsawidget._muted = true
+    alsawidget.tooltip:set_text (" [Muted] ")
+    widget:set_color (alsawidget.colors.mute)
+    return 100
+  end
+  alsawidget._muted = false
+  alsawidget.tooltip:set_text (" " .. alsawidget.channel .. ": " .. args[1] .. "% ")
+  widget:set_color (alsawidget.colors.unmute)
+  return args[1]
+end, 5, alsawidget.channel)
 
 -- weather widget
-weatherwidget = widget({ type = "textbox" })
+weatherwidget = wibox.widget.textbox()
 vicious.register(weatherwidget, vicious.widgets.weather, "${sky} ${tempc}°C", 1800, "EDDM")
 
 -- Create a separator
-separator = widget({ type = "textbox" })
-separator.text = " :: "
+separator = wibox.widget.textbox()
+separator:set_text(" :: ")
 
 -- Create a textclock widget
-mytextclock = awful.widget.textclock({ align = "right" }, "%a %b %d %H:%M:%S ", 1)
-
--- Create a systray
-mysystray = widget({ type = "systray" })
+mytextclock = awful.widget.textclock("%a %b %d %H:%M:%S ", 1)
 
 -- Create a wibox for each screen and add it
 mywibox = {}
@@ -332,7 +321,7 @@ mytasklist.buttons = awful.util.table.join(
 
 for s = 1, screen.count() do
     -- Create a promptbox for each screen
-    mypromptbox[s] = awful.widget.prompt({ layout = awful.widget.layout.horizontal.leftright })
+    mypromptbox[s] = awful.widget.prompt()
     -- Create an imagebox widget which will contains an icon indicating which layout we're using.
     -- We need one layoutbox per screen.
     mylayoutbox[s] = awful.widget.layoutbox(s)
@@ -342,40 +331,52 @@ for s = 1, screen.count() do
                            awful.button({ }, 4, function () awful.layout.inc(layouts, 1) end),
                            awful.button({ }, 5, function () awful.layout.inc(layouts, -1) end)))
     -- Create a taglist widget
-    mytaglist[s] = awful.widget.taglist(s, awful.widget.taglist.label.all, mytaglist.buttons)
+    mytaglist[s] = awful.widget.taglist(s, awful.widget.taglist.filter.all, mytaglist.buttons)
 
     -- Create a tasklist widget
-    mytasklist[s] = awful.widget.tasklist(function(c)
-                                              return awful.widget.tasklist.label.currenttags(c, s)
-                                          end, mytasklist.buttons)
+    mytasklist[s] = awful.widget.tasklist(s, awful.widget.tasklist.filter.currenttags, mytasklist.buttons)
 
     -- Create the wibox
     mywibox[s] = awful.wibox({ position = "top", screen = s })
-    -- Add widgets to the wibox - order matters
-    mywibox[s].widgets = {
-        {
-            mylauncher,
-            mytaglist[s],
-            mypromptbox[s],
-            layout = awful.widget.layout.horizontal.leftright
-        },
-        mylayoutbox[s],
-        mytextclock,
- 	separator, weatherwidget,
-	separator, pomodoro.widget,
-        separator, volumecfg.widget,
-        has_battery and separator,
-        has_battery and batbar.widget,
-        has_battery and batwidget,
- 	separator, membar.widget,
- 	separator, cpugraph.widget,
- 	separator, diskgraph.widget,
- 	separator, upicon, netwidget_up, downicon, netwidget_down,
-	separator,
-        s == 1 and mysystray or nil,
-        mytasklist[s],
-        layout = awful.widget.layout.horizontal.rightleft
-    }
+
+    -- Widgets that are aligned to the left
+    local left_layout = wibox.layout.fixed.horizontal()
+    left_layout:add(mylauncher)
+    left_layout:add(mytaglist[s])
+    left_layout:add(mypromptbox[s])
+
+    -- Widgets that are aligned to the right
+    local right_layout = wibox.layout.fixed.horizontal()
+    if s == 1 then right_layout:add(wibox.widget.systray()) end
+    right_layout:add(separator)
+    right_layout:add(netwidget_down)
+    right_layout:add(downicon)
+    right_layout:add(netwidget_up)
+    right_layout:add(upicon)
+    right_layout:add(separator)
+    right_layout:add(diskgraph_mirrored)
+    right_layout:add(separator)
+    right_layout:add(cpugraph_mirrored)
+    right_layout:add(separator)
+    right_layout:add(membar)
+    right_layout:add(separator)
+    right_layout:add(batwidget)
+    right_layout:add(batbar)
+    right_layout:add(separator)
+    right_layout:add(alsawidget.bar)
+    right_layout:add(separator)
+    right_layout:add(weatherwidget)
+    right_layout:add(separator)
+    right_layout:add(mytextclock)
+    right_layout:add(mylayoutbox[s])
+
+    -- Now bring it all together (with the tasklist in the middle)
+    local layout = wibox.layout.align.horizontal()
+    layout:set_left(left_layout)
+    layout:set_middle(mytasklist[s])
+    layout:set_right(right_layout)
+
+    mywibox[s]:set_widget(layout)
 end
 -- }}}
 
@@ -431,10 +432,6 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey },            "/",     function () mypromptbox[mouse.screen]:run() end),
 
     -- Custom
-    awful.key({ modkey }, "F9", function () pomodoro:start() end),
-    awful.key({ modkey }, "F10", function () pomodoro:stop() end),
-    awful.key({ modkey }, "F11", function () pomodoro:reset() end),
-
     awful.key({ modkey }, "F12",
     	function ()
             -- Setup terminal on current tag
@@ -445,11 +442,25 @@ globalkeys = awful.util.table.join(
 	    -- Rule sets tag
 	    awful.util.spawn_with_shell("google-chrome")
 	end),
-    awful.key({ modkey }, "b", function () scratch.drop(terminal .. " -e vim /home/sturm/braindump", nil, nil, 0.5) end),
-    -- awful.key({ modkey }, "l", function () scratch.drop(terminal .. " -e vim /home/sturm/logbuch", nil, nil, 0.5) end),
-    awful.key({}, "XF86AudioMute", function () volumecfg.toggle() end),
-    awful.key({}, "XF86AudioLowerVolume", function () volumecfg.down() end),
-    awful.key({}, "XF86AudioRaiseVolume", function () volumecfg.up() end),
+    awful.key({}, "XF86AudioMute",
+      function ()
+        awful.util.spawn("amixer sset " .. alsawidget.channel .. " toggle")
+        awful.util.spawn("amixer sset " .. "Speaker" .. " unmute")
+        awful.util.spawn("amixer sset " .. "Headphone" .. " unmute")
+        vicious.force({ alsawidget.bar })
+        alsawidget.notify()
+      end),
+    awful.key({}, "XF86AudioLowerVolume",
+    function ()
+      awful.util.spawn("amixer sset " .. alsawidget.channel .. " " .. alsawidget.step .. "-")vicious.force({ alsawidget.bar })
+      alsawidget.notify()
+    end),
+    awful.key({}, "XF86AudioRaiseVolume",
+    function ()
+      awful.util.spawn("amixer sset " .. alsawidget.channel .. " " .. alsawidget.step .. "+")
+      vicious.force({ alsawidget.bar })
+      alsawidget.notify()
+    end),
     awful.key({}, "XF86ScreenSaver", function () lock_screen() end),
     awful.key({}, "XF86Sleep", function () suspend() end),
     --awful.key({}, "XF86Suspend", function () hibernate() end),
@@ -535,12 +546,9 @@ awful.rules.rules = {
 
 -- {{{ Signals
 -- Signal function to execute when a new client appears.
-client.add_signal("manage", function (c, startup)
-    -- Add a titlebar
-    -- awful.titlebar.add(c, { modkey = modkey })
-
+client.connect_signal("manage", function (c, startup)
     -- Enable sloppy focus
-    c:add_signal("mouse::enter", function(c)
+    c:connect_signal("mouse::enter", function(c)
         if awful.layout.get(c.screen) ~= awful.layout.suit.magnifier
             and awful.client.focus.filter(c) then
             client.focus = c
@@ -557,11 +565,14 @@ client.add_signal("manage", function (c, startup)
             awful.placement.no_overlap(c)
             awful.placement.no_offscreen(c)
         end
+    elseif not c.size_hints.user_position and not c.size_hints.program_position then
+        -- Prevent clients from being unreachable after screen count change
+        awful.placement.no_offscreen(c)
     end
 end)
 
-client.add_signal("focus", function(c) c.border_color = beautiful.border_focus end)
-client.add_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
+client.connect_signal("focus", function(c) c.border_color = beautiful.border_focus end)
+client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
 -- }}}
 
 -- Start some additional GNOME applets

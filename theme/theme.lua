@@ -88,7 +88,7 @@ theme.titlebar_maximized_button_normal_active = themedir .. "titlebar/maximized_
 theme.titlebar_maximized_button_focus_active  = themedir .. "titlebar/maximized_focus_active.png"
 
 -- You can use your own command to set your wallpaper
-theme.wallpaper_cmd = { "xsetroot -solid black" }
+theme.wallpaper_cmd = "/usr/bin/xsetroot -solid black"
 
 -- You can use your own layout icons like this:
 theme.layout_fairh = themedir .. "layouts/fairhw.png"
