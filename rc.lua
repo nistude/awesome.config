@@ -176,98 +176,48 @@ upicon = wibox.widget.imagebox()
 upicon:set_image(beautiful.widget_net_up)
 
 -- Volume widget
-local alsawidget = {
-  channel = "Master",
-  step = "1%",
-  colors = {
-    unmute = "#AECF96",
-    mute = "#FF5656"
-  },
-  mixer = terminal .. " -e alsamixer", -- or whatever your preferred sound mixer is
-  notifications = {
-    icons = {
-      -- the first item is the 'muted' icon
-      "/usr/share/icons/gnome/48x48/status/audio-volume-muted.png",
-      -- the rest of the items correspond to intermediate volume levels - you can have as many as you want (but must be >= 1)
-      "/usr/share/icons/gnome/48x48/status/audio-volume-low.png",
-      "/usr/share/icons/gnome/48x48/status/audio-volume-medium.png",
-      "/usr/share/icons/gnome/48x48/status/audio-volume-high.png"
-    },
-    font = "Monospace 11", -- must be a monospace font for the bar to be sized consistently
-    icon_size = 48,
-    bar_size = 18 -- adjust to fit your font if the bar doesn't fit
-  }
-}
+volumecfg = {}
+volumecfg.cardid  = 0
+volumecfg.channel = "Master"
 
-alsawidget.bar = awful.widget.progressbar ()
-alsawidget.bar:set_width (8)
-alsawidget.bar:set_vertical (true)
-alsawidget.bar:set_background_color ("#494B4F")
-alsawidget.bar:set_color (alsawidget.colors.unmute)
+volumecfg.widget = wibox.widget.textbox()
 
-alsawidget.tooltip = awful.tooltip ({ objects = { alsawidget.bar } })
+volumecfg_t = awful.tooltip({ objects = { volumecfg.widget }})
+volumecfg_t:set_text("Volume")
 
--- naughty notifications
-alsawidget._current_level = 0
-alsawidget._muted = false
+volumecfg.mixercommand = function (command)
+  local fd = io.popen("amixer -c " .. volumecfg.cardid .. command)
+  local status = fd:read("*all")
+  fd:close()
 
-function alsawidget:notify ()
-  local preset = {
-    height = 75,
-    width = 300,
-    font = alsawidget.notifications.font
-  }
-  local i = 1;
-  while alsawidget.notifications.icons[i + 1] ~= nil do
-    i = i + 1
-  end
-  if i >= 2 then
-    preset.icon_size = alsawidget.notifications.icon_size
-    if alsawidget._muted or alsawidget._current_level == 0 then
-      preset.icon = alsawidget.notifications.icons[1]
-    elseif alsawidget._current_level == 100 then
-      preset.icon = alsawidget.notifications.icons[i]
-    else
-      local int = math.modf (alsawidget._current_level / 100 * (i - 1))
-      preset.icon = alsawidget.notifications.icons[int + 2]
-    end
-  end
-  if alsawidget._muted then
-    preset.title = alsawidget.channel .. " - Muted"
-  elseif alsawidget._current_level == 0 then
-    preset.title = alsawidget.channel .. " - 0% (muted)"
-    preset.text = "[" .. string.rep (" ", alsawidget.notifications.bar_size) .. "]"
-  elseif alsawidget._current_level == 100 then
-    preset.title = alsawidget.channel .. " - 100% (max)"
-    preset.text = "[" .. string.rep ("|", alsawidget.notifications.bar_size) .. "]"
+  local volume = string.match(status, "(%d?%d?%d)%%")
+  volume = string.format("% 3d", volume)
+  status = string.match(status, "%[(o[^%]]*)%]")
+  if string.find(status, "on", 1, true) then
+    volume = volume .. "%"
   else
-    local int = math.modf (alsawidget._current_level / 100 * alsawidget.notifications.bar_size)
-    preset.title = alsawidget.channel .. " - " .. alsawidget._current_level .. "%"
-    preset.text = "[" .. string.rep ("|", int) .. string.rep (" ", alsawidget.notifications.bar_size - int) .. "]"
+    volume = volume .. "M"
   end
-  if alsawidget._notify ~= nil then
-    alsawidget._notify = naughty.notify ({
-      replaces_id = alsawidget._notify.id,
-      preset = preset
-    })
-  else
-    alsawidget._notify = naughty.notify ({ preset = preset })
-  end
+  volumecfg.widget:set_text(volume)
 end
 
-vicious.register (alsawidget.bar, vicious.widgets.volume, function (widget, args)
-  alsawidget._current_level = args[1]
-  if args[2] == "♩" then
-    alsawidget._muted = true
-    alsawidget.tooltip:set_text (" [Muted] ")
-    widget:set_color (alsawidget.colors.mute)
-    return 100
-  end
-  alsawidget._muted = false
-  alsawidget.tooltip:set_text (" " .. alsawidget.channel .. ": " .. args[1] .. "% ")
-  widget:set_color (alsawidget.colors.unmute)
-  return args[1]
-end, 5, alsawidget.channel)
+volumecfg.update = function ()
+  volumecfg.mixercommand(" sget " .. volumecfg.channel)
+end
+
+volumecfg.up = function ()
+  volumecfg.mixercommand(" sset " .. volumecfg.channel .. " 1%+ unmute")
+end
+
+volumecfg.down = function ()
+  volumecfg.mixercommand(" sset " .. volumecfg.channel .. " 1%-")
+end
+
+volumecfg.toggle = function ()
+  volumecfg.mixercommand(" sset " .. volumecfg.channel .. " toggle")
+end
+
+volumecfg.update()
 
 -- weather widget
 weatherwidget = wibox.widget.textbox()
@@ -355,7 +305,7 @@ for s = 1, screen.count() do
     right_layout:add(batwidget)
     right_layout:add(batbar)
     right_layout:add(separator)
-    right_layout:add(alsawidget.bar)
+    right_layout:add(volumecfg.widget)
     right_layout:add(separator)
     right_layout:add(weatherwidget)
     right_layout:add(separator)
@@ -433,25 +383,9 @@ globalkeys = awful.util.table.join(
 	    -- Rule sets tag
 	    awful.util.spawn_with_shell("google-chrome")
 	end),
-    awful.key({}, "XF86AudioMute",
-      function ()
-        awful.util.spawn("amixer sset " .. alsawidget.channel .. " toggle")
-        awful.util.spawn("amixer sset " .. "Speaker" .. " unmute")
-        awful.util.spawn("amixer sset " .. "Headphone" .. " unmute")
-        vicious.force({ alsawidget.bar })
-        alsawidget.notify()
-      end),
-    awful.key({}, "XF86AudioLowerVolume",
-    function ()
-      awful.util.spawn("amixer sset " .. alsawidget.channel .. " " .. alsawidget.step .. "-")vicious.force({ alsawidget.bar })
-      alsawidget.notify()
-    end),
-    awful.key({}, "XF86AudioRaiseVolume",
-    function ()
-      awful.util.spawn("amixer sset " .. alsawidget.channel .. " " .. alsawidget.step .. "+")
-      vicious.force({ alsawidget.bar })
-      alsawidget.notify()
-    end),
+    awful.key({}, "XF86AudioMute", function () volumecfg.toggle() end),
+    awful.key({}, "XF86AudioLowerVolume", function () volumecfg.down() end),
+    awful.key({}, "XF86AudioRaiseVolume", function () volumecfg.up() end),
     awful.key({}, "XF86ScreenSaver", function () lock_screen() end),
     awful.key({}, "XF86Sleep", function () suspend() end),
     --awful.key({}, "XF86Suspend", function () hibernate() end),
