@@ -108,12 +108,12 @@ mylauncher = awful.widget.launcher({ image = beautiful.awesome_icon,
 
 -- {{{ Wibox
 -- battery widget
-has_battery = awful.util.file_readable("/sys/class/power_supply/BAT0")
-batbar = awful.widget.progressbar()
-batbar:set_vertical(true):set_ticks(true)
-batbar:set_height(18):set_width(10):set_ticks_size(2)
-batbar:set_background_color(beautiful.fg_off_widget)
-batbar:set_color({
+has_battery0 = awful.util.file_readable("/sys/class/power_supply/BAT0")
+batbar0 = awful.widget.progressbar()
+batbar0:set_vertical(true):set_ticks(true)
+batbar0:set_height(18):set_width(10):set_ticks_size(2)
+batbar0:set_background_color(beautiful.fg_off_widget)
+batbar0:set_color({
   type = "linear", from = { 0, 0 }, to = { 0, 18 },
   stops = {
     { 0, beautiful.fg_end_widget, },
@@ -121,11 +121,28 @@ batbar:set_color({
     { 1, beautiful.fg_widget }
   }
 })
-vicious.register(batbar, vicious.widgets.bat, "$2", 60, "BAT0")
+vicious.register(batbar0, vicious.widgets.bat, "$2", 60, "BAT0")
 
-batwidget = wibox.widget.textbox()
-vicious.register(batwidget, vicious.widgets.bat, "$1/$3 ", 60, "BAT0")
+batwidget0 = wibox.widget.textbox()
+vicious.register(batwidget0, vicious.widgets.bat, "$1/$3 ", 60, "BAT0")
 
+has_battery1 = awful.util.file_readable("/sys/class/power_supply/BAT1")
+batbar1 = awful.widget.progressbar()
+batbar1:set_vertical(true):set_ticks(true)
+batbar1:set_height(18):set_width(10):set_ticks_size(2)
+batbar1:set_background_color(beautiful.fg_off_widget)
+batbar1:set_color({
+  type = "linear", from = { 0, 0 }, to = { 0, 18 },
+  stops = {
+    { 0, beautiful.fg_end_widget, },
+    { 0.5, beautiful.fg_center_widget, },
+    { 1, beautiful.fg_widget }
+  }
+})
+vicious.register(batbar1, vicious.widgets.bat, "$2", 60, "BAT1")
+
+batwidget1 = wibox.widget.textbox()
+vicious.register(batwidget1, vicious.widgets.bat, "$1/$3 ", 60, "BAT1")
 -- cpu widget
 cpugraph = awful.widget.graph()
 cpugraph:set_width(40):set_height(18)
@@ -279,7 +296,7 @@ for s = 1, screen.count() do
     mytasklist[s] = awful.widget.tasklist(s, awful.widget.tasklist.filter.currenttags, mytasklist.buttons)
 
     -- Create the wibox
-    mywibox[s] = awful.wibox({ position = "top", screen = s })
+    mywibox[s] = awful.wibox({ position = "top", screen = s, height = 24 })
 
     -- Widgets that are aligned to the left
     local left_layout = wibox.layout.fixed.horizontal()
@@ -301,9 +318,16 @@ for s = 1, screen.count() do
     right_layout:add(cpugraph_mirrored)
     right_layout:add(separator)
     right_layout:add(membar)
-    right_layout:add(separator)
-    right_layout:add(batwidget)
-    right_layout:add(batbar)
+    if has_battery0 then
+        right_layout:add(separator)
+        right_layout:add(batwidget0)
+        right_layout:add(batbar0)
+    end
+    if has_battery1 then
+        right_layout:add(separator)
+        right_layout:add(batwidget1)
+        right_layout:add(batbar1)
+    end
     right_layout:add(separator)
     right_layout:add(volumecfg.widget)
     right_layout:add(separator)
@@ -386,8 +410,11 @@ globalkeys = awful.util.table.join(
     awful.key({}, "XF86AudioMute", function () volumecfg.toggle() end),
     awful.key({}, "XF86AudioLowerVolume", function () volumecfg.down() end),
     awful.key({}, "XF86AudioRaiseVolume", function () volumecfg.up() end),
+    awful.key({ modkey }, "l", function () lock_screen() end),
     awful.key({}, "XF86ScreenSaver", function () lock_screen() end),
     awful.key({}, "XF86Sleep", function () suspend() end),
+    awful.key({}, "XF86MonBrightnessDown", function () os.execute("xbacklight -dec 10") end),
+    awful.key({}, "XF86MonBrightnessUp", function () os.execute("xbacklight -inc 10") end),
     --awful.key({}, "XF86Suspend", function () hibernate() end),
     awful.key({}, "#156", function () os.execute("gksudo -- shutdown -h now") end)
 )
